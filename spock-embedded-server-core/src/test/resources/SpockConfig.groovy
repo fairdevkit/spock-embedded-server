@@ -21,37 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.fairdevkit.spock.extension.server.core;
-
-import com.github.fairdevkit.spock.extension.server.spi.EmbeddedServer;
-import java.io.IOException;
-import java.util.ServiceLoader;
-import org.spockframework.runtime.extension.IGlobalExtension;
-
-public class EmbeddedServerGlobalExtension implements IGlobalExtension {
-    private final EmbeddedServerConfiguration configuration;
-
-    public EmbeddedServerGlobalExtension(EmbeddedServerConfiguration configuration) {
-        this.configuration = configuration;
-    }
-
-    @Override
-    public void start() {
-        var server = ServiceLoader.load(EmbeddedServer.class)
-                .findFirst()
-                .orElseThrow();
-
-        try {
-            server.start(configuration.port);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-
-        EmbeddedServerHolder.INSTANCE.setServer(server);
-    }
-
-    @Override
-    public void stop() {
-        EmbeddedServerHolder.INSTANCE.getServer().stop();
-    }
+embedded_server {
+    port 8081
 }
