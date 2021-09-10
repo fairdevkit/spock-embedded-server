@@ -29,13 +29,21 @@ import java.io.IOException;
 import java.util.ServiceLoader;
 import org.spockframework.runtime.extension.IAnnotationDrivenExtension;
 import org.spockframework.runtime.model.FeatureInfo;
+import org.spockframework.runtime.model.MethodInfo;
 import org.spockframework.runtime.model.SpecInfo;
 
 public class EmbedResourceAnnotationExtension implements IAnnotationDrivenExtension<EmbedResource> {
+    private final EmbeddedServerConfiguration configuration;
+
+    public EmbedResourceAnnotationExtension(EmbeddedServerConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
     @Override
     public void visitSpecAnnotation(EmbedResource annotation, SpecInfo spec) {
+        var server = EmbeddedServerHolder.INSTANCE.getServer();
+
         spec.addInterceptor(methodInvocation -> {
-            var server = EmbeddedServerHolder.INSTANCE.getServer();
             var ctx = new ResourceContext(annotation.path(), annotation.resource(), annotation.status(), annotation.contentType());
             server.createContext(ctx);
 
@@ -45,12 +53,15 @@ public class EmbedResourceAnnotationExtension implements IAnnotationDrivenExtens
                 server.removeContext(ctx);
             }
         });
+
+        spec.getAllFeatures().forEach(feature -> injectParameters(feature, server.getAddress().getPort()));
     }
 
     @Override
     public void visitFeatureAnnotation(EmbedResource annotation, FeatureInfo feature) {
+        var server = EmbeddedServerHolder.INSTANCE.getServer();
+
         feature.addInterceptor(methodInvocation -> {
-            var server = EmbeddedServerHolder.INSTANCE.getServer();
             var ctx = new ResourceContext(annotation.path(), annotation.resource(), annotation.status(), annotation.contentType());
             server.createContext(ctx);
 
@@ -60,5 +71,28 @@ public class EmbedResourceAnnotationExtension implements IAnnotationDrivenExtens
                 server.removeContext(ctx);
             }
         });
+
+        injectParameters(feature, server.getAddress().getPort());
+    }
+
+    @SuppressWarnings("deprecated")
+    private void injectParameters(FeatureInfo feature, int port) {
+        var names = feature.getParameterNames();
+
+        if (names.contains("port")) {
+            feature.getFeatureMethod().addInterceptor(methodInvocation -> {
+                var args = methodInvocation.getArguments();
+
+                for (var i = 0; i < args.length; i++) {
+                    if (MethodInfo.MISSING_ARGUMENT.equals(args[i]) && "port".equals(names.get(i))) {
+                        args[i] = port;
+                    }
+                }
+
+                methodInvocation.setArguments(args);
+
+                methodInvocation.proceed();
+            });
+        }
     }
 }

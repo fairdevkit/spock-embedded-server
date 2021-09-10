@@ -31,6 +31,8 @@ public interface EmbeddedServer {
 
     InetSocketAddress start(int port) throws IOException;
 
+    InetSocketAddress getAddress();
+
     void createContext(ResourceContext ctx);
     void removeContext(ResourceContext ctx);
 

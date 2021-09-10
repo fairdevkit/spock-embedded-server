@@ -27,8 +27,14 @@ import spock.lang.Specification
 
 class FeatureAnnotationSpec extends Specification {
     @EmbedResource(path = "/foo/", resource = "/foo.txt")
-    def "resolve path for a spec level embedded resource"() {
+    def "resolve path for a feature level embedded resource"() {
         expect:
         new URL("http://localhost:8081/foo/").text == "foo"
+    }
+
+    @EmbedResource(path = "/foo/", resource = "/foo.txt")
+    def "resolve path with injected port for feature level embedded resource"(port) {
+        expect:
+        new URL("http://localhost:$port/foo/").text == "foo"
     }
 }

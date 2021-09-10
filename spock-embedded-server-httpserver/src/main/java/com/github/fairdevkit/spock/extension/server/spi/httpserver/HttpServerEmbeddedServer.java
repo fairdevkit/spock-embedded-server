@@ -57,6 +57,11 @@ public class HttpServerEmbeddedServer implements EmbeddedServer {
     }
 
     @Override
+    public InetSocketAddress getAddress() {
+        return server.getAddress();
+    }
+
+    @Override
     public void createContext(ResourceContext ctx) {
         server.createContext(ctx.path(), exchange -> {
             var headers = exchange.getResponseHeaders();

@@ -34,4 +34,12 @@ class CombinedAnnotationSpec extends Specification {
         and:
         new URL("http://localhost:8081/foo/").text == "foo"
     }
+
+    @EmbedResource(path = "/foo/", resource = "/foo.txt")
+    def "resolve paths with injected port for both spec and feature embedded resource"(port) {
+        expect:
+        new URL("http://localhost:$port/").text == "root"
+        and:
+        new URL("http://localhost:$port/foo/").text == "foo"
+    }
 }

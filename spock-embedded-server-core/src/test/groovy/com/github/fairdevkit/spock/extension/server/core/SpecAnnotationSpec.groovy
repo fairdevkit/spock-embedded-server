@@ -31,4 +31,9 @@ class SpecAnnotationSpec extends Specification {
         expect:
         new URL("http://localhost:8081/").text == "root"
     }
+
+    def "resolve path with injected port for a spec level embedded resource"(port) {
+        expect:
+        new URL("http://localhost:$port/").text == "root"
+    }
 }
