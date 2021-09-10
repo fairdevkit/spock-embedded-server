@@ -23,25 +23,29 @@
  */
 package com.github.fairdevkit.spock.extension.server.core;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.spockframework.runtime.extension.ExtensionAnnotation;
+import com.github.fairdevkit.spock.extension.server.spi.EmbeddedServer;
+import java.io.IOException;
+import java.util.ServiceLoader;
+import org.spockframework.runtime.extension.IGlobalExtension;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Repeatable(EmbedResources.class)
-@ExtensionAnnotation(EmbedResourceAnnotationExtension.class)
-public @interface EmbedResource {
-    String path() default "/";
+public class EmbeddedServerGlobalExtension implements IGlobalExtension {
+    @Override
+    public void start() {
+        var server = ServiceLoader.load(EmbeddedServer.class)
+                .findFirst()
+                .orElseThrow();
 
-    String resource();
+        try {
+            server.start(8081);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
-    int status() default 200;
+        EmbeddedServerHolder.INSTANCE.setServer(server);
+    }
 
-    String contentType() default "text/plain";
+    @Override
+    public void stop() {
+        EmbeddedServerHolder.INSTANCE.getServer().stop();
+    }
 }

@@ -21,27 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.fairdevkit.spock.extension.server.core;
+package com.github.fairdevkit.spock.extension.server.core
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.spockframework.runtime.extension.ExtensionAnnotation;
+import spock.lang.Specification
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Repeatable(EmbedResources.class)
-@ExtensionAnnotation(EmbedResourceAnnotationExtension.class)
-public @interface EmbedResource {
-    String path() default "/";
-
-    String resource();
-
-    int status() default 200;
-
-    String contentType() default "text/plain";
+@EmbedResource(resource = "/root.txt")
+class CombinedAnnotationSpec extends Specification {
+    @EmbedResource(path = "/foo/", resource = "/foo.txt")
+    def "resolve paths for both spec and feature embedded resources"() {
+        expect:
+        new URL("http://localhost:8081/").text == "root"
+        and:
+        new URL("http://localhost:8081/foo/").text == "foo"
+    }
 }

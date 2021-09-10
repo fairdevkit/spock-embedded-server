@@ -23,7 +23,19 @@
  */
 package com.github.fairdevkit.spock.extension.server.core;
 
-import org.spockframework.runtime.extension.IAnnotationDrivenExtension;
+import com.github.fairdevkit.spock.extension.server.spi.EmbeddedServer;
 
-public class EmbeddedServerExtension implements IAnnotationDrivenExtension<EmbedResource> {
+/* package private */ enum EmbeddedServerHolder {
+    /** Singleton instance. */
+    INSTANCE;
+
+    private EmbeddedServer server;
+
+    public void setServer(EmbeddedServer server) {
+        this.server = server;
+    }
+
+    public EmbeddedServer getServer() {
+        return server;
+    }
 }
