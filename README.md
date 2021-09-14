@@ -1,6 +1,8 @@
 # spock-embedded-server
 Spock extension for running an embedded server per spec or feature.
 
+[![Maven CI](https://github.com/fairdevkit/spock-embedded-server/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/fairdevkit/spock-embedded-server/actions/workflows/ci.yml)
+
 ## Quickstart
 ```xml
 <dependency>
