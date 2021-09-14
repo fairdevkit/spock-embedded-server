@@ -28,16 +28,11 @@ import com.github.fairdevkit.spock.extension.server.spi.ResourceContext;
 import com.sun.net.httpserver.HttpServer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpServerEmbeddedServer implements EmbeddedServer {
-    private final AtomicInteger refCount;
     private HttpServer server;
-
-    public HttpServerEmbeddedServer() {
-        refCount = new AtomicInteger();
-    }
 
     @Override
     public InetSocketAddress start() throws IOException {
@@ -46,23 +41,28 @@ public class HttpServerEmbeddedServer implements EmbeddedServer {
 
     @Override
     public InetSocketAddress start(int port) throws IOException {
-        if (refCount.get() == 0) {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
-            server.start();
+        if (server != null) {
+            throw new IllegalStateException("Server already running");
         }
 
-        refCount.incrementAndGet();
-
+        server = HttpServer.create();
+        server.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 0);
+        server.start();
+        
         return server.getAddress();
     }
 
     @Override
     public InetSocketAddress getAddress() {
+        checkServerState();
+
         return server.getAddress();
     }
 
     @Override
     public void createContext(ResourceContext ctx) {
+        checkServerState();
+
         server.createContext(ctx.path(), exchange -> {
             var headers = exchange.getResponseHeaders();
             headers.add("Content-Type", ctx.contentType());
@@ -80,18 +80,21 @@ public class HttpServerEmbeddedServer implements EmbeddedServer {
 
     @Override
     public void removeContext(ResourceContext ctx) {
+        checkServerState();
+
         server.removeContext(ctx.path());
     }
 
     @Override
     public void stop() {
-        if (refCount.get() <= 0) {
-            throw new IllegalStateException();
-        }
+        checkServerState();
 
-        var count = refCount.decrementAndGet();
-        if (count == 0) {
-            server.stop(0);
+        server.stop(0);
+    }
+
+    private void checkServerState() {
+        if (server == null) {
+            throw new IllegalStateException("HttpServer was not started");
         }
     }
 }
