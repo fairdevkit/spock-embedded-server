@@ -58,18 +58,18 @@
         <!-- project settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <license-plugin.version>4.1</license-plugin.version>
 
         <!-- compile dependencies -->
         <slf4j.version>1.7.32</slf4j.version>
         <!-- provided dependencies -->
-        <spotbugs.version>4.4.0</spotbugs.version>
+        <spotbugs.version>4.4.1</spotbugs.version>
         <!-- test dependencies -->
-        <groovy.version>3.0.8</groovy.version>
+        <groovy.version>3.0.9</groovy.version>
         <spock.version>2.0-groovy-3.0</spock.version>
-        <gmavenplus.version>1.12.1</gmavenplus.version>
+        <gmavenplus.version>1.13.0</gmavenplus.version>
         <surefire.version>3.0.0-M5</surefire.version>
     </properties>
 
